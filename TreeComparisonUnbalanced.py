@@ -1,3 +1,7 @@
+import matplotlib
+
+matplotlib.use('Tkagg')
+
 from RB_Tree import RBTree
 from ABR_Tree import ABRTree
 import time
@@ -6,7 +10,7 @@ import time
 # Classe per comparare gli alberi in cui il nostro albero BST ha elementi totalmente sbilanciati
 class TreeComparisonUnbalanced:
     # def __init__(self):
-        # pass  # Dichiarazione di un costruttore vuoto
+    # pass  # Dichiarazione di un costruttore vuoto
 
     def __init__(self):
         self.arr = []
@@ -14,9 +18,11 @@ class TreeComparisonUnbalanced:
         self.rbtree = RBTree()  # Albero rosso nero
         self.a = None
         self.b = None
+        self.y = None
 
     def compare_unbalanced_insertion(self):
         self.arr = list(range(0, 10000))
+        self.y = len(self.arr)
 
         print("----- UNBALANCED INSERT -----")
 

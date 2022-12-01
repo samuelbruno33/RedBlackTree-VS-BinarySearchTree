@@ -1,5 +1,13 @@
 from TreeComparisonRandomized import TreeComparisonRandomized
 from TreeComparisonUnbalanced import TreeComparisonUnbalanced
+#import matplotlib.pyplot as plt
+"""
+        plt.plot(time.time(), self.y, marker="o", color='red')
+        plt.title("UNBALANCED INSERT")
+        plt.xlabel("X")
+        plt.ylabel("Y")
+        plt.show()
+        """
 
 
 # Dichiarazione della funzione main
