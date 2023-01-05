@@ -35,9 +35,7 @@ class TreeComparisonRandomized:
 
     def compare_random_insertion(self):
         self.randomize_nums()
-
         print("----- RANDOM INSERT -----")
-
         start_bst_time = time.process_time_ns()
         for num in self.nums:
             self.bst.insert(num)
