@@ -1,7 +1,3 @@
-import matplotlib
-
-matplotlib.use('Tkagg')
-
 from RB_Tree import RBTree
 from ABR_Tree import ABRTree
 import time
