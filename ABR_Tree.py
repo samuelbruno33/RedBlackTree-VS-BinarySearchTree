@@ -90,8 +90,7 @@ class ABRTree:
         return self.root
 
     """
-    # Creo il layout per poter stampare l'albero
-    def __printHelper(self, currPtr, indent, last):
+    def printTree(self, currPtr, indent, last):
         if currPtr is not None:
             sys.stdout.write(indent)
             if last:
@@ -105,8 +104,4 @@ class ABRTree:
 
             self.__printHelper(currPtr.left, indent, False)
             self.__printHelper(currPtr.right, indent, True)
-
-    # Funzione di stampa dell'albero vera e propria, dove viene passato l'albero stesso
-    def print_abr_tree(self):
-        self.__printHelper(self.root, "", True)
         """

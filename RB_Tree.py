@@ -184,8 +184,7 @@ class RBTree:
         return self.root
 
     """
-    # Creo il layout per poter stampare l'albero
-    def __print_helper(self, node, indent, last):
+    def printTree(self, node, indent, last):
         if node != self.rbnode:
             sys.stdout.write(indent)
             if last:
@@ -200,8 +199,4 @@ class RBTree:
             self.__print_helper(node.left, indent,
                                 False)  # Va a sinistra e inizia a scrivere dall'ultimo nodo sinistro che trova facendo ricorsione all'indietro
             self.__print_helper(node.right, indent, True)
-
-    # Funzione di stampa dell'albero vera e propria, dove viene passato l'albero stesso
-    def print_rb_tree(self):
-        self.__print_helper(self.root, "", True)
         """
