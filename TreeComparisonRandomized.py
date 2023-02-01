@@ -125,6 +125,8 @@ class TreeComparisonRandomized:
         elements2.append(count_rbt)
         times2.append(end_rbt_time)
 
+        return self.a, self.b
+
     def compare_random_successor(self):
         print("----- SUCCESSOR -----")
 
@@ -158,6 +160,23 @@ class TreeComparisonRandomized:
         delta = end_bst_time - end_rbt_time
         print("Delta: %s ns " % delta)
         print("----------------------------\n")
+
+    def random_predecessor_with_plot(self, a, b):
+        global count_bst, count_rbt
+
+        start_bst_time = time.process_time()
+        self.bst.predecessor(a)
+        count_bst += 1
+        end_bst_time = time.process_time() - start_bst_time
+        elements.append(count_bst)
+        times.append(end_bst_time)
+
+        start_rbt_time = time.process_time()
+        self.rbtree.predecessor(b)
+        count_rbt += 1
+        end_rbt_time = time.process_time() - start_rbt_time
+        elements2.append(count_rbt)
+        times2.append(end_rbt_time)
 
     def compare_random_get_root(self):
         print("----- GET_ROOT -----")

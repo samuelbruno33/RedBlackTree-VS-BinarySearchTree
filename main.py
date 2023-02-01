@@ -30,6 +30,8 @@ def main2():
 
     # Grafici di RBTree con il BST sbilanciato
     obj = TCU.TreeComparisonUnbalanced()
+    arr = []
+    arr2 = []
     print("--------------- UNBALANCED BST ---------------\n")
     obj.unbalanced_insertion_with_plot()
 
@@ -38,8 +40,23 @@ def main2():
     TCU.times.clear()
     TCU.times2.clear()
     for i in range(300):
-        obj.unbalanced_find_with_plot(random.randint(0, 1000))
-    TCU.plt.title("FIND BALANCED")
+        a, b = obj.unbalanced_find_with_plot(random.randint(0, 1000))
+        if a is not None and b is not None and a.key != 0 and b.key != 0:
+            arr.append((a, b))
+    TCU.plt.title("FIND UNBALANCED")
+    TCU.plt.plot(TCU.elements, TCU.times, marker="o", color='red')  # BST
+    TCU.plt.plot(TCU.elements2, TCU.times2, marker="v", color='blue')  # RBT
+    TCU.plt.show()
+
+    TCU.elements.clear()
+    TCU.elements2.clear()
+    TCU.times.clear()
+    TCU.times2.clear()
+    TCU.count_bst = 0
+    TCU.count_rbt = 0
+    for i, y in arr:
+        obj.unbalanced_predecessor_with_plot(i, y)
+    TCU.plt.title("PREDECESSOR UNBALANCED")
     TCU.plt.plot(TCU.elements, TCU.times, marker="o", color='red')  # BST
     TCU.plt.plot(TCU.elements2, TCU.times2, marker="v", color='blue')  # RBT
     TCU.plt.show()
@@ -55,8 +72,23 @@ def main2():
     TCR.times.clear()
     TCR.times2.clear()
     for i in range(300):
-        obj2.random_find_with_plot(random.randint(0, 1000))
+        a, b = obj2.random_find_with_plot(random.randint(0, 1000))
+        if a is not None and b is not None and a.key != 0 and b.key != 0:
+            arr2.append((a, b))
     TCR.plt.title("FIND RANDOMIZED")
+    TCR.plt.plot(TCR.elements, TCR.times, marker="o", color='green')  # BST
+    TCR.plt.plot(TCR.elements2, TCR.times2, marker="v", color='blue')  # RBT
+    TCR.plt.show()
+
+    TCR.elements.clear()
+    TCR.elements2.clear()
+    TCR.times.clear()
+    TCR.times2.clear()
+    TCR.count_bst = 0
+    TCR.count_rbt = 0
+    for i, y in arr2:
+        obj2.random_predecessor_with_plot(i, y)
+    TCR.plt.title("PREDECESSOR RANDOMIZED")
     TCR.plt.plot(TCR.elements, TCR.times, marker="o", color='green')  # BST
     TCR.plt.plot(TCR.elements2, TCR.times2, marker="v", color='blue')  # RBT
     TCR.plt.show()
