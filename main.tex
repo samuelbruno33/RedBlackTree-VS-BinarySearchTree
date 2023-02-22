@@ -1,0 +1,321 @@
+\documentclass{article}
+
+% If you're new to LaTeX, here's some short tutorials:
+% https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes
+% https://en.wikibooks.org/wiki/LaTeX/Basics
+
+% Formatting
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage[titletoc,title]{appendix}
+
+% Math
+% https://www.overleaf.com/learn/latex/Mathematical_expressions
+% https://en.wikibooks.org/wiki/LaTeX/Mathematics
+\usepackage{amsmath,amsfonts,amssymb,mathtools}
+
+% Images
+% https://www.overleaf.com/learn/latex/Inserting_Images
+% https://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions
+\usepackage{graphicx,float}
+
+% Tables
+% https://www.overleaf.com/learn/latex/Tables
+% https://en.wikibooks.org/wiki/LaTeX/Tables
+
+% Algorithms
+% https://www.overleaf.com/learn/latex/algorithms
+% https://en.wikibooks.org/wiki/LaTeX/Algorithms
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{algorithmic}
+
+% Code syntax highlighting
+% https://www.overleaf.com/learn/latex/Code_Highlighting_with_minted
+\usepackage{minted}
+\usemintedstyle{borland}
+
+% References
+% https://www.overleaf.com/learn/latex/Bibliography_management_in_LaTeX
+% https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management
+\usepackage{biblatex}
+\addbibresource{references.bib}
+
+% For reffering to an item list
+\usepackage{enumitem}
+
+% For colors lol
+\usepackage[dvipsnames]{xcolor}
+
+
+% Title content
+\title{Alberi Rosso-Neri vs Alberi Binari di Ricerca \\
+       \large Laboratorio di Algoritmi - Esercizio A}
+\author{Samuel Bruno}
+\date{10 Ottobre 2022}
+
+\begin{document}
+
+\maketitle
+
+% Abstract
+\begin{abstract}
+L'obiettivo di questa relazione è quello di analizzare le differenze tra Alberi Binari di Ricerca e Alberi Rosso-Neri in modo da ottenere un confronto diretto atto a comprendere meglio la disuguaglianza di efficienza delle due implementazioni.
+\end{abstract}
+
+% Introduzione
+\section{Introduzione}
+Un \textbf{Albero Binario di Ricerca} è un albero binario che soddisfa la seguente proprietà:
+\begin{enumerate}[label={\roman*.)}, ref={\roman*.)}]
+    \item $ \text{Se y è nel sottoalbero sinistro di x, allora}, y.key \leq x.key \label{unoABR}$
+    \item $ \text{Se y è nel sottoalbero destro di x, allora}, y.key \geq x.key \label{dueABR}$
+                % label serve a dare un alias all'indice nel caso si volesse poter referenziare successivamente (es. Come descritto nel punto ii.) con il comando \ref
+\end{enumerate}
+Le operazioni di base sono effettuate in un tempo $O(h)$ (dove h = altezza albero).\\
+
+Un \textbf{Albero Rosso-Nero}, invece, è un tipo di Albero Binario di Ricerca bilanciato  in cui ad ogni nodo associamo un colore, che può essere rosso o nero. Inoltre deve soddisfare le seguenti proprietà:
+\begin{enumerate}[label={\roman*.)}, ref={\roman*.)}]
+    \item Ogni nodo è \textbf{\textcolor{red}{rosso}} o \textbf{nero}
+    \item La radice è \textbf{nera}
+    \item Ogni foglia è \textbf{nera}
+    \item Se un nodo è \textbf{\textcolor{red}{rosso}}, allora entrambi i suoi figli sono \textbf{neri}
+    \item Tutti i cammini da ogni nodo alle foglie contengono lo stesso
+    numero di nodi \textbf{neri}
+\end{enumerate}
+
+Il confronto verrà effettuato proprio sulle operazioni di base che entrambi gli alberi hanno in comune ed in particolare verrà analizzato attraverso i tempi di esecuzione degli algoritmi.
+Date le basi, possiamo procedere a descrivere la struttura dati di entrambe.
+
+%  Strutture dati degli algoritmi
+\section{Strutture dati degli algoritmi}
+Sia gli Alberi Binari di Ricerca che gli Alberi Rosso-Neri presentano le seguenti operazioni fondamentali:
+\begin{enumerate}[label={\roman*.)}, ref={\roman*.)}]
+    \item \textbf{Tree-Insert(T, z):} Dato un albero T e un nuovo nodo z, inserisce, confrontando opportunamente le chiavi, il nodo z come figlio di un altro nodo all’interno dell'albero.
+    \item \textbf{Tree-Search(x, k):} Dato un nodo x e una chiave k, la ricerca parte dal nodo x restituendo infine il nodo la cui chiave è uguale alla chiave k.
+    \item \textbf{Tree-Successor(x):} Dato un nodo x, restituisce il più piccolo nodo maggiore del nodo x.
+    \item \textbf{Tree-Predecessor(x):} Dato un nodo x, restituisce il più grande nodo minore del nodo x.
+    \item \textbf{Get-Root(T):} Dato un albero T restituisce la sua radice.
+\end{enumerate}
+Gli Alberi Rosso-Neri hanno però tre operazioni fondamentali in aggiunta a quelle elencate sopra, che vengono utilizzate come operazioni ausiliarie dell'inserimento; queste procedure, infatti, eliminano le violazioni dovute all’inserimento di una chiave nell'albero così da farne rispettare le proprietà:
+\begin{enumerate}[label={\roman*.)}, ref={\roman*.)}]
+    \item \textbf{RB-Insert-Fixup(T, z):} Dato un albero T e un nodo z, corregge l'inserimento del nodo z attraverso delle \textit{rotazioni} dei nodi a destra o sinistra. Infine, qualora il colore della radice fosse diventata rossa, viene ripristinata al colore nero.
+    \item \textbf{Left-Rotate(T, z):} Dato un albero T e un nodo z, effettua una rotazione sinistra, ovvero il nodo y, figlio destro di z, diventa la nuova radice del sottoalbero e il suo figlio sinistro sarà z; inoltre il precedente figlio sinistro di y diventerà ora il figlio destro di z.
+    \item \textbf{Right-Rotate(T, z):} Operazione del tutto speculare alla Left-Rotate(T, z).
+\end{enumerate}
+In particolare, RB-Insert-Fixup effettua delle correzioni in tre casi: il \textit{\textbf{primo}} nel caso in cui lo zio di z è \textbf{\textcolor{red}{rosso}} viene risolto colorando il padre di \textbf{nero}, il nonno di \textbf{\textcolor{red}{rosso}} e lo zio di \textbf{nero} (Figura 1);
+\begin{figure}[!hb]
+        \centering
+        \includegraphics[width=0.5\linewidth]{Figura 2.1.png}
+        \caption{Caso zio di z è rosso}
+        \label{fig:Figura2.1}
+\end{figure}
+
+il \textit{\textbf{secondo}} nel caso in cui lo zio di z è \textbf{nero} e z è un figlio \textit{destro}, allora viene effettuata una rotazione a sinistra tra z e il padre (Figura 2);
+\begin{figure}[!hb]
+        \centering
+        \includegraphics[width=0.5\linewidth]{Figura 2.2.png}
+        \caption{Caso zio di z è nero e z è un figlio destro}
+        \label{fig:Figura2.2}
+\end{figure}
+
+il \textit{\textbf{terzo}} nel caso in cui lo zio di z è \textbf{nero} e z è un figlio \textit{sinistro}, allora viene effettuata una rotazione a destra tra il padre di z e il nonno che vengono anche colorati rispettivamente di \textbf{nero} e di \textbf{\textcolor{red}{rosso}} (Figura 3).
+\begin{figure}[!hb]
+        \centering
+        \includegraphics[width=0.5\linewidth]{Figura 2.3.png}
+        \caption{Caso zio di z è nero e z è un figlio sinistro}
+        \label{fig:Figura2.3}
+\end{figure}
+
+Per concludere, in questa relazione non viene considerata l'operazione di cancellazione di un nodo.
+
+
+% Prestazioni attese
+\section{Prestazioni attese}
+\subsection{Alberi Binari di Ricerca}
+Come già introdotto nella prima sezione, gli Alberi Binari di Ricerca effettuano le loro operazioni di base in un tempo di $O(h)$, dove h=altezza dell'albero.
+Più nello specifico, prendendo come riferimento la ricerca e l'inserimento, che sono le due operazioni più dispendiose in termini di memoria, si hanno come prestazioni attese le seguenti complessità:
+\begin{table}[!hb]
+    \centering
+    \begin{tabular}{cccc}
+    Operazione & Peggiore & Medio & Migliore \\
+    \hline
+    Inserimento & $O(n)$ & $O(\log{}n)$ & $O(1)$ \\
+    Ricerca & $O(n)$ & $O(\log{}n)$ & $O(1)$ \\
+    \end{tabular}
+    \caption{Complessità degli Alberi Binari di Ricerca}
+    \label{tab:ComplexityABR}
+\end{table}
+
+Questa differenza di complessità dipende dall'ordine di inserimento dei nodi.
+Il caso peggiore si ha quando un albero è completamente sbilanciato (tutti i nodi a destra o sinistra) e la sua altezza è pari al numero di nodi (n) meno 1.
+Il caso medio quando un albero è bilanciato e gli elementi sono distribuiti uniformemente fra
+i sottoalberi.
+Infine, il caso migliore è banale e semplicistico in quanto si limita per la ricerca di trovare la radice e per l'inserimento di inserirla.\\
+Si può però parlare di ABR \textbf{ottimale} il cui caso peggiore di inserimento è $\theta{(\log{n})}$ e avviene quando un albero è \textbf{perfettamente bilanciato}.
+\subsubsection{Alberi Binari di Ricerca Randomizzati}
+Per sperimentare diverse soluzioni, in questa relazione, ho voluto considerare anche l'applicazione di ABR Randomizzati, nel quale genero una permutazione randomica di elementi finiti presenti in un array che verranno poi inseriti nell'Albero Binario di Ricerca.
+Per effettuare questa operazione ho utilizzato l'algoritmo di \textbf{Fisher–Yates} che, in maniera molto semplice, mescola tutti gli elementi presenti in un array rendendolo di fatto completamente randomico.
+In termini di complessità, quindi, ci possiamo aspettare dei risultati migliori del normale ABR, considerando che rientra nella categoria del caso medio, essendo l'albero più bilanciato e con elementi maggiormente distribuiti sia nella ricerca che nell'inserimento.
+\subsection{Alberi Rosso-Neri}
+Per quanto riguarda gli Alberi Rosso-Neri possiamo affermare che tutte le operazioni fondamentali vengono effettuate con una complessità di $O(\log{n})$.
+Questo perchè un ARN non è nient'altro che un ABR bilanciato.
+Come conseguenza, gli ARN non sono così distanti in termini di logica e complessità rispetto agli Alberi Binari di Ricerca Randomizzati.
+
+\clearpage
+
+% Organigramma del progetto
+\section{Documentazione del progetto}
+Il programma è formato in totale da 5 files:
+\begin{enumerate}[label={\roman*.)}, ref={\roman*.)}]
+    \item \textbf{ABRTree.py:} Nel file sono presenti le classi Node e ABRTree, contenente l'implementazione dell'Albero Binario di Ricerca.
+    \item \textbf{RBTree.py:} Nel file sono contenute le classi RBNode e RBTree che sono rispettivamente il nodo rosso nero ereditato dal nodo dell'albero di ricerca e l'Albero Rosso-Nero stesso, con tutte le sue rispettive funzioni.
+    \item \textbf{TreeComparisonUnbalanced.py:} Nel file vengono comparati, entrambi con lo stesso input, un albero di ricerca completamente sbilanciato e un Albero Rosso-Nero.
+    \item \textbf{TreeComparisonRandomized.py:} Nel file vengono comparati, entrambi con lo stesso input \textit{randomizzato}, un albero di ricerca e un Albero Rosso-Nero.
+\end{enumerate}
+
+Il progetto presenta quindi la seguente struttura:
+\begin{figure}[!hb]
+        \centering
+        \includegraphics[width=0.9\linewidth]{Project_UML.jpg}
+        \caption{Diagramma delle classi}
+        \label{fig:Project_UML}
+\end{figure}
+
+\subsection{Classi e metodi}
+\subsubsection{Classe Node}
+E' la classe che implementa il singolo nodo di un Albero Binario di Ricerca.
+I suoi attributi sono: key, parent, left, right.
+\subsubsection{Classe ABRTree}
+E' la classe che implementa l' Albero Binario di Ricerca e lo fa inserendo al suo interno un elemento di Node, che rappresenta per l'appunto un nodo.
+Questa classe fornisce i seguenti metodi:
+\begin{itemize}
+    \item \textbf{insert:} Data una chiave, inserisce un nodo all'interno dell'albero.
+    \item \textbf{findNode:} Ricerca una chiave confrontando ogni nodo.
+    \item \textbf{find:} Richiama la funzione findNode a cui passa il nodo di partenza (la radice) e un elemento k.
+    \item \textbf{minimum:} Dato un nodo di partenza, restituisce il valore minimo del suo sottoalbero.
+    \item \textbf{maximum:} Dato un nodo di partenza, restituisce il valore massimo del suo sottoalbero.
+    \item \textbf{successor:} Dato un nodo restituisce il suo successore. Utilizza al suo interno la funzione minimum.
+    \item \textbf{predecessor:} Dato un nodo restituisce il suo predecessore. Utilizza al suo interno la funzione maximum.
+    \item \textbf{get-root:} Ritorna la radice dell'albero.
+\end{itemize}
+
+\subsubsection{Classe RBNode}
+E' la classe che implementa il singolo nodo di un Albero Rosso-Nero.
+\textbf{Eredita} gli attributi della classe Node e come suo attributo aggiuntivo ha color: un valore booleano che rappresenta il colore di un nodo; di default il colore di un nodo è nero.
+
+\subsubsection{Classe RBTree}
+E' la classe che implementa l' Albero Rosso-Nero ed il principio è lo stesso dell' ABR.
+I suoi metodi sono gli stessi, con l'aggiunta di \textbf{rb-insert-fixup}, \textbf{left-rotate} e \textbf{right-rotate}, dei quali è già stato spiegato il funzionamento nella \textit{Sezione 2}.
+
+\subsubsection{Classe TreeComparisonUnbalanced}
+In questa  classe avviene il confronto tra l' Albero Rosso-Nero ed l' Albero Binario di Ricerca con un input di numeri positivi interi inseriti sequenzialmente così da far sbilanciare quest'ultimo albero.
+Presenta i seguenti metodi:
+\begin{itemize}
+    \item \textbf{compareInsertion:} Richiama le funzioni di insert sia dell'Albero Rosso-Nero che dell'Albero Binario di Ricerca e ne calcola i tempi di esecuzione.
+    \item \textbf{compareFind:} Richiama le funzioni di find sia dell'Albero Rosso-Nero che dell'Albero Binario di Ricerca e ne calcola i tempi di esecuzione. Viene dato in input un valore nel main (per semplicità, il valore esiste) e una volta trovato viene salvato in due variabili per ogni albero, così da venire utilizzato successivamente per ricercare il successore e il predecessore.
+    \item \textbf{compareSuccessor:} Sfruttando il valore trovato precedentemente con la find viene richiamata la funzione del successore sia dell'Albero Rosso-Nero che dell'Albero Binario di Ricerca e ne calcola i tempi di esecuzione.
+    \item \textbf{comparePredecessor:} Stessa funzione descritta sopra ma utilizzando la funzione del predecessore.
+    \item \textbf{compareGetRoot:} Richiama la funzione get-root sia dell'Albero Rosso-Nero che dell'Albero Binario di Ricerca e ne calcola i tempi di esecuzione.
+\end{itemize}
+
+\subsubsection{Classe TreeComparisonRandomized}
+In questa  classe avviene il confronto tra l' Albero Rosso-Nero ed l' Albero Binario di Ricerca, stavolta però con un input di numeri randomizzato secondo l'algoritmo di Fisher–Yates in modo da rendere l'ABR il più bilanciato possibile.
+I metodi sono gli stessi della classe precedente.
+
+% Risultati Ottenuti
+\section{Risultati Sperimentali}
+Gli esperimenti sono stati effettuati su una sequenza di 10000 interi positivi privi della presenza di duplicati.
+I test sono stati eseguiti su un HP Pavilion DV6 le cui specifiche sono:\\
+\textit{Processore Intel(R) Core(TM) i5-2450M CPU @ 2.50GHz 3.10 GHz Dual-core Quad-thread\\}
+\textit{RAM 8 GB 1333 Mhz\\}
+\textit{Sistema Operativo EndeavourOS - kernel Linux\\}
+
+Le misurazioni effettuate riguardano il tempo di esecuzione dei processi nella CPU e i vari test sono stati eseguiti per più di cinque volte in modo tale da verificare la costanza dei risultati.\\
+Nella seguenti tabelle elenco gli ultimi 5 test eseguiti (con i risultati espressi in \textbf{$\mu$s}):
+\begin{figure}[!hb]
+        \centering
+        \includegraphics[width=0.9\linewidth]{Unbalanced ABR.png}
+        \caption{Test Unbalanced ABR}
+        \label{fig:Unbalanced_ABR}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[!hb]
+        \centering
+        \includegraphics[width=0.9\linewidth]{Randomized ABR.png}
+        \caption{Test Randomized ABR}
+        \label{fig:Randomized_ABR}
+\end{figure}
+
+\subsection{Analisi dei risultati}
+\subsubsection{Unbalanced ABR}
+Come possiamo vedere dalla \textit{Figura 5} un albero sbilanciato (in questo caso-limite lo è completamente) è \textbf{molto} svantaggioso e impiega parecchio più tempo di calcolo nelle operazioni di inserimento e ricerca rispetto all'Albero Rosso-Nero.
+Come costante, però, in favore del \textbf{ABR}, troviamo l'operazione della ricerca del \textbf{Predecessore}, data dal fatto che l'input dell'albero sono numeri interi in ordine crescente e non avendo un sottoalbero sinistro la funzione trova come predecessore semplicemente il padre del nodo dato in input.
+Nelle restanti operazioni però possiamo vedere come i risultati siano, nella maggior parte dei casi, simili come tempistica e come non sempre l'Albero Rosso-Nero sia per forza più veloce.
+\\
+\subsubsection{Randomized ABR}
+Nella \textit{Figura 6}, invece, vengono rappresentati i risultati dell'albero randomizzato.
+Qui al contrario di prima possiamo notare come \textbf{ogni} inserimento finisca parecchio in anticipo rispetto all' Albero Rosso-Nero, mentre per la ricerca 3 volte su 4 rimane più veloce in quest' ultimo rispetto all'albero randomizzato.
+Gli altri risultati sono simili alla tabella Unbalanced.
+In conclusione nella Randomized gli Alberi Binari di Ricerca sono decisamente più valorizzati e più presenti in percentuale rispetto a prima rendendoli quindi una valida alternativa agli Alberi Rosso-Neri.
+
+\subsection{Analisi delle complessità}
+Analizzando le complessità dei metodi nell'operazione di \textbf{inserimento} (\textit{Figura 7 e Figura 8}), notiamo come nel caso dell'\textit{ABR sbilanciato} questo tenda sempre in maniera lineare con l'avanzare degli elementi inseriti. Essendo per l'appunto il caso peggiore possibile ($O(n)$), si nota la congruenza con quando detto nella \textit{Sezione 3}. Per quanto riguarda l'\textbf{ABR randomizzato} risulta chiaro quanto questo metodo sia migliore rispetto alla controparte sbilanciata, riuscendo ad equiparare il costo dell'\textbf{Albero Rosso-Nero}; risultando, quindi, entrambi coerenti con le prestazioni attese $O(\log(n))$.
+Da tenere conto che i risultati sono stati acquisiti analizzando un set di soli 300 elementi. Quando questo set aumenta numericamente, anche le prestazioni vengono accentuate, rendendo ancora più accurate e chiare le analisi dei costi computazionali, che risultano sempre coesi con quando già discusso. Tutti i tempi nei grafici sono espressi in \textit{secondi}:
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width=0.75\linewidth]{ins unbalanced.png}
+        \caption{In \textbf{\textcolor{red}{rosso}} l'Abero Binario di Ricerca \textit{Unbalanced} ed in \textbf{\textcolor{blue}{blu}} l'Albero Rosso-Nero}
+        \label{fig:balvsarn}
+\end{figure}
+
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width=0.8\linewidth]{ins rand.png}
+        \caption{In \textbf{\textcolor{ForestGreen}{verde}} l'Abero Binario di Ricerca \textit{Randomized} ed in \textbf{\textcolor{blue}{blu}} l'Albero Rosso-Nero}
+        \label{fig:randvsarn}
+\end{figure}
+
+\clearpage
+
+Per l'operazione di ricerca, anche qui, la situazione risulta essere conforme a quanto detto precedentemente. Nel caso dell'\textit{ABR sbilanciato} il risultato va sempre totalmente a favore dell'Albero Rosso-Nero (\textit{Figura 9}), mentre l'\textbf{ABR randomizzato} (\textit{Figura 10}) è conforme al risultato dell'ARN.
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width=0.9\linewidth]{find_unbalanced.png}
+        \caption{In \textbf{\textcolor{red}{rosso}} l'Abero Binario di Ricerca \textit{Unbalanced} ed in \textbf{\textcolor{blue}{blu}} l'Albero Rosso-Nero}
+        \label{fig:balanced_search}
+\end{figure}
+
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width=0.9\linewidth]{find rand.png}
+        \caption{In \textbf{\textcolor{ForestGreen}{verde}} l'Abero Binario di Ricerca \textit{Randomized} ed in \textbf{\textcolor{blue}{blu}} l'Albero Rosso-Nero}
+        \label{fig:search_rand}
+\end{figure}
+
+\clearpage
+
+Analizzando, adesso, l'operazione \textit{predecessor} si osserva che i risultati sono coerenti con quanto scoperto nelle tabelle di \textit{Figura 5 e 6}. Questa, infatti, è \textbf{l'unica operazione} per cui l'\textbf{ABR sbilanciato} risulta sempre leggermente più efficiente dell'ARN, mentre l'\textbf{ABR randomizzato} si alterna con l'\textbf{ARN}, mantenendo entrambi regolari i loro costi.
+In ogni caso, le operazioni vengono effettuate con un costo praticamente \textbf{costante}.
+\begin{figure}[!hb]
+        \centering
+        \includegraphics[width=0.85\linewidth]{predecessor_unbalanced.png}
+        \caption{In \textbf{\textcolor{red}{rosso}} l'Abero Binario di Ricerca \textit{Unbalanced} ed in \textbf{\textcolor{blue}{blu}} l'Albero Rosso-Nero}
+        \label{fig:balanced_search}
+\end{figure}
+
+\begin{figure}[!hb]
+        \centering
+        \includegraphics[width=0.85\linewidth]{pred_rand.png}
+        \caption{In \textbf{\textcolor{ForestGreen}{verde}} l'Abero Binario di Ricerca \textit{Randomized} ed in \textbf{\textcolor{blue}{blu}} l'Albero Rosso-Nero}
+        \label{fig:search_rand}
+\end{figure}
+
+Infine, non ho incluso i grafici delle operazioni \textit{successor} e \textit{get-root} poichè risultano essere dei casi banali e poco interessanti.
+
+% Summary and Conclusions
+\section{Conclusione}
+In conclusione dagli esperimenti effettuati nella maggior parte dei casi è preferibile optare per l’uso di un \textbf{Albero Rosso-Nero} invece di uno \textbf{Binario di Ricerca}, essendo per sua natura un albero auto-bilanciato.
+Abbiamo però visto come in alcuni casi i risultati siano abbastanza simili (complici anche alcuni accorgimenti come la casualità dell'input) e come una struttura dati molto semplice come quella degli \textbf{ABR} possa riuscire quasi, o del tutto, ad equiparare strutture più complesse.
+
+\end{document}
